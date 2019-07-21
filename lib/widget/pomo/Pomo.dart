@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pomodoro_apps/utils/animation.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 import 'package:pomodoro_apps/widget/custom/crbutton.dart';
 import 'package:pomodoro_apps/widget/custom/critem.dart';
+import 'package:pomodoro_apps/widget/pomo/pomo_tracker.dart';
 
 class Pomo extends StatefulWidget {
   @override
@@ -217,7 +219,11 @@ class PomoState extends State<Pomo> {
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children:<Widget>[
-                          CRButton(text: "Submit",)
+                          CRButton(text: "Submit", onClick: (){
+                            Navigator.push(context, SlideTopRoute(
+                              page: PomoTracker()
+                            ));
+                          },)
                           ]
                         )
                        )
