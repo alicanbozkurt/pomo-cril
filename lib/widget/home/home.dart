@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pomodoro_apps/utils/animation.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
+import 'package:pomodoro_apps/widget/pomo/Pomo.dart';
+import 'package:pomodoro_apps/widget/setting/setting.dart';
 
 class Home extends StatefulWidget{
   @override
@@ -30,10 +33,14 @@ class HomeState extends State<Home>{
       floatingActionButton: FloatingActionButton(
         backgroundColor: ColorUtils.blue_app,
       child: Image.asset(isEmpty ? "assets/img/icon_home_empty.png" : "assets/img/icon_home.png"), onPressed: () {
-        setState(() {
-          isEmpty = false;
-        });
-      },),
+        if(isEmpty){
+          setState(() {
+            isEmpty = false;
+          });
+        }else{
+           Navigator.push(context, SlideTopRoute(page: Pomo()));
+        }
+      }),
       bottomNavigationBar: BottomAppBar(
         notchMargin: 4,
         elevation: 8,
@@ -157,7 +164,12 @@ class HomeState extends State<Home>{
                                   color: Colors.black,
                                   fontSize: 18,
                                   fontFamily: Constants.font)),
-              Image.asset("assets/img/icon_gear.png", width: 29,)
+              IconButton(icon: Image.asset("assets/img/icon_gear.png", width: 29,), onPressed: (){ 
+                 Navigator.push(context, 
+                            MaterialPageRoute(builder: (context) => Setting())
+                            );
+                          
+              },)
             ],
           )
     );

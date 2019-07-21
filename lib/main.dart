@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 import 'package:pomodoro_apps/widget/intro/intro.dart';
 
@@ -12,6 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        primaryColor: ColorUtils.bg_home,
         textTheme: TextTheme(
           title: TextStyle(fontFamily: Constants.font)
         )
