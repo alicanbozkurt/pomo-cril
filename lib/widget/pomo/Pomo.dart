@@ -83,37 +83,54 @@ class PomoState extends State<Pomo> {
                               color: Colors.white)),
 
                       Padding(
-                        padding: EdgeInsets.only(top: 8, bottom: 20),
+                        padding: EdgeInsets.only(top: 10, bottom: 20),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            CRItem(
-                              child: Container(
-                                width: 75,
-                                child:Column(children: <Widget>[
-                                  Image.asset("assets/img/eye_open.png", width: 25,),
-                                  Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("Relax", style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
-                                ])
-                              )
+                            Column(
+                              children:<Widget>[
+                              CRItem(
+                                  child: Container(
+                                    width: 75,
+                                    child:Column(children: <Widget>[
+                                      Image.asset("assets/img/eye_open.png", width: 25,),
+                                      Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("Relax", style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
+                                    ])
+                                  )
+                                ),
+                                Padding(padding:EdgeInsets.only(top: 4), child:Text("20F - 10B", style:TextStyle(color:Colors.white, fontFamily:Constants.font, fontSize: 12)))
+                              ]
                             ),
-                            CRItem(
-                              child: Container(
-                                width: 75,
-                                child:Column(children: <Widget>[
-                                  Image.asset("assets/img/eye_open_2.png", width: 25,),
-                                  Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("Normal", style: TextStyle(fontFamily: Constants.font, fontSize: 11,color: Colors.white),))
-                                ])
-                              )
+                            
+                            Column(
+                              children:<Widget>[
+                              CRItem(
+                                  child: Container(
+                                    width: 75,
+                                    child:Column(children: <Widget>[
+                                      Image.asset("assets/img/eye_open_2.png", width: 25,),
+                                      Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("Normal", style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
+                                    ])
+                                  )
+                                ),
+                                Padding(padding:EdgeInsets.only(top: 4), child:Text("25F - 5B", style:TextStyle(color:Colors.white, fontFamily:Constants.font, fontSize: 12)))
+                              ]
                             ),
-                            CRItem(
-                              child: Container(
-                                width: 75,
-                                child:Column(children: <Widget>[
-                                  Image.asset("assets/img/eye_open_3.png", width: 25,),
-                                  Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("No Blinking", style: TextStyle(fontFamily: Constants.font, fontSize: 11,color: Colors.white),))
-                                ])
-                              )
-                            ),
+
+                            Column(
+                              children:<Widget>[
+                              CRItem(
+                                  child: Container(
+                                    width: 75,
+                                    child:Column(children: <Widget>[
+                                      Image.asset("assets/img/eye_open_3.png", width: 25,),
+                                      Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("No Blingking", style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
+                                    ])
+                                  )
+                                ),
+                                Padding(padding:EdgeInsets.only(top: 4), child:Text("50F - 10B", style:TextStyle(color:Colors.white, fontFamily:Constants.font, fontSize: 12)))
+                              ]
+                            )
 
                           ],
                         ),

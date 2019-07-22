@@ -10,7 +10,14 @@ class PomoTracker extends StatefulWidget{
 
 }
 
+enum StateTracker{
+  START, 
+  IDLE,
+  COMPLETE
+}
+
 class PomoTrackerState extends State<PomoTracker>{
+  StateTracker stateTracker = StateTracker.IDLE;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,11 +54,12 @@ class PomoTrackerState extends State<PomoTracker>{
                     children: <Widget>[
                       Padding(
                         padding:EdgeInsets.only(top: 30, bottom: 30),
-                        child:
+                        child: stateTracker == StateTracker.COMPLETE ?
+                        completeCril():
                         CRTimer(children: <Widget>[
                           Padding(padding:EdgeInsets.only(top: 20, bottom: 10), child: Text("20:00", style: TextStyle(fontFamily: Constants.font, fontSize: 35, color: Colors.white))),
-                          Text("Ready", style: TextStyle(fontFamily: Constants.font, fontSize: 16, color: Colors.white),),
-                        ])
+                          Text(stateTracker == StateTracker.IDLE ? "Ready" : "Focus", style: TextStyle(fontFamily: Constants.font, fontSize: 16, color: Colors.white),),
+                        ], stateTracker:  stateTracker) 
                       ),
                       dotIndicator(),
                       textCril(),
@@ -64,7 +72,15 @@ class PomoTrackerState extends State<PomoTracker>{
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children:<Widget>[
-                            CRButton(text: "Start",)
+                            CRButton(text: "Start", onClick: (){
+                              setState(() {
+                                if(stateTracker == StateTracker.IDLE){
+                                  stateTracker = StateTracker.START;
+                                }else{
+                                  stateTracker = StateTracker.COMPLETE;
+                                }
+                              });
+                            },)
                             ]
                       )
                       )
@@ -76,6 +92,26 @@ class PomoTrackerState extends State<PomoTracker>{
               ]
             )
       ),
+    );
+  }
+
+  Widget completeCril(){
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child:Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text("You've completed", textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 26, color: Colors.white),),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children:<Widget>[
+          Text("4", textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 100, color: Colors.white),),
+           Text("cril", textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 26, color: Colors.white),),
+          ]
+        )
+      ],
+      )
     );
   }
 
