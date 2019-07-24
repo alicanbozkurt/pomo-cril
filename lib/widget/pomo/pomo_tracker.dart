@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
+import 'package:pomodoro_apps/widget/custom/back.dart';
 import 'package:pomodoro_apps/widget/custom/crbutton.dart';
 import 'package:pomodoro_apps/widget/custom/crtimer.dart';
 
@@ -11,7 +12,8 @@ class PomoTracker extends StatefulWidget{
 }
 
 enum StateTracker{
-  START, 
+  START,
+  CRIL, 
   IDLE,
   COMPLETE
 }
@@ -34,14 +36,17 @@ class PomoTrackerState extends State<PomoTracker>{
                         topLeft: Radius.circular(16),
                         topRight: Radius.circular(16))),
                 child: 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center ,
+                Stack(
                   children: <Widget>[
-                    IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: (){
-                      Navigator.of(context).pop();
-                    }),
-                    Expanded(
-                      child:Text("Start a Cril", textAlign: TextAlign.center, style: TextStyle(fontFamily: Constants.font, fontSize: 14, color: Colors.white),)
+                    stateTracker == StateTracker.IDLE ? 
+                    Back(isWhite: true,)
+                    : Container(
+                      width: 1,
+                      height: 1,
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child:Text(stateTracker == StateTracker.IDLE ? "Start a Cril" : "Cril", textAlign: TextAlign.center, style: TextStyle(fontFamily: Constants.font, fontSize: 14, color: Colors.white),)
                     )
                     
                   ],
@@ -69,20 +74,48 @@ class PomoTrackerState extends State<PomoTracker>{
                       buttonControl(),
                       Padding(padding: EdgeInsets.only(top:20, bottom: 5), child: 
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          stateTracker == StateTracker.COMPLETE?
+                          Padding(
+                            padding: EdgeInsets.only(right: 8),
+                            child:Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children:<Widget>[
+                              CRButton(text: "Go To Dashbord", onClick: (){ 
+                                Navigator.of(context).pop();
+                              })
+                              ]
+                            )
+                          ) 
+                          : Container(width: 1, height: 1,),
+                          Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children:<Widget>[
-                            CRButton(text: "Start", onClick: (){
+                            CRButton(text: 
+                            stateTracker == StateTracker.IDLE?
+                            "Start a New Cril"
+                            : stateTracker == StateTracker.CRIL ? "Break" :
+                            stateTracker == StateTracker.COMPLETE ? "Done" :
+                            "Give Up"
+                            
+                            , onClick: (){
                               setState(() {
                                 if(stateTracker == StateTracker.IDLE){
                                   stateTracker = StateTracker.START;
+                                }else if(stateTracker == StateTracker.START){
+                                  stateTracker = StateTracker.CRIL;
                                 }else{
                                   stateTracker = StateTracker.COMPLETE;
                                 }
                               });
                             },)
                             ]
-                      )
+                          ),
+                      ])
+                      
                       )
                     ],
                   ),

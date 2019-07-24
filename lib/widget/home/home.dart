@@ -19,7 +19,7 @@ class HomeState extends State<Home>{
   Widget build(BuildContext context) {
     return Scaffold(
       body:Container(
-          child: Column(
+          child: Stack(
             children: <Widget>[
               titleWidget(),
               isEmpty ? emptyCril() : fillCril()
@@ -52,9 +52,9 @@ class HomeState extends State<Home>{
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          IconButton(icon: Icon(Icons.home, color: isEmpty ? Colors.transparent: Colors.white, size: 28,), onPressed: () {},),
+          IconButton(icon: Image.asset("assets/img/home_select_icon.png", width: 26,), onPressed: () {},),
           Padding(padding:EdgeInsets.only(top: 24),child:Text("Start a Cril", style:TextStyle(color:Colors.white,fontSize: 16,fontFamily: Constants.font))),
-          IconButton(icon: !isEmpty? Image.asset("assets/img/icon_home_2.png", width: 26,) :Icon(Icons.home, color: Colors.transparent,) , onPressed: () {},),
+          IconButton(icon: Image.asset("assets/img/icon_home_2.png", width: 26,), onPressed: () {},),
         ],
       ),
         )
@@ -109,7 +109,7 @@ class HomeState extends State<Home>{
   Widget fillCril(){
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.only(left:20, right: 20, bottom: 20, top: 65),
       child: ListView(
         children: <Widget>[
           Row(
@@ -127,7 +127,8 @@ class HomeState extends State<Home>{
   }
 
   Widget emptyCril(){
-    return Center(
+    return Align(
+      alignment: Alignment.bottomCenter,
       child: Container(
         height: MediaQuery.of(context).size.height * 0.7,
         child:Column(
@@ -143,6 +144,10 @@ class HomeState extends State<Home>{
            Padding(
             padding: EdgeInsets.only(top: 4),
             child: Text("to focus on your work start a cril", style: TextStyle(fontFamily: Constants.font, fontSize: 20, color: Colors.black),),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Image.asset("assets/img/arrow.png", width: 19,),
           )
 
         ],
@@ -159,11 +164,7 @@ class HomeState extends State<Home>{
       child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text("crillo.",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontFamily: Constants.font)),
+             Image.asset("assets/img/crillo.png", width: 43, height: 19,),
               IconButton(icon: Image.asset("assets/img/icon_gear.png", width: 29,), onPressed: (){ 
                  Navigator.push(context, 
                             MaterialPageRoute(builder: (context) => Setting())

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:pomodoro_apps/utils/animation.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
+import 'package:pomodoro_apps/widget/custom/back.dart';
 import 'package:pomodoro_apps/widget/custom/crbutton.dart';
 import 'package:pomodoro_apps/widget/custom/critem.dart';
 import 'package:pomodoro_apps/widget/pomo/pomo_tracker.dart';
@@ -20,30 +21,29 @@ class PomoState extends State<Pomo> {
         body: Container(
             margin: EdgeInsets.only(top: 24),
             height: MediaQuery.of(context).size.height,
-            child: Column(children: <Widget>[
-              Container(
-                height: 54,
-                padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
-                decoration: BoxDecoration(
-                    color: ColorUtils.blue_app,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        topRight: Radius.circular(16))),
-                child: 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center ,
-                  children: <Widget>[
-                    IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: (){
-                      Navigator.of(context).pop();
-                    }),
-                    Expanded(
-                      child:Text("Start a Cril", textAlign: TextAlign.center, style: TextStyle(fontFamily: Constants.font, fontSize: 14, color: Colors.white),)
-                    )
-                    
-                  ],
+              child: Column(children: <Widget>[
+                Container(
+
+                  height: 54,
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+                  decoration: BoxDecoration(
+                      color: ColorUtils.blue_app,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16))),
+                  child: 
+                  Stack(
+                    children: <Widget>[
+                    Back(isWhite: true,),
+                      Align(
+                        alignment: Alignment.center,
+                        child:Text("Start a Cril", textAlign: TextAlign.center, style: TextStyle(fontFamily: Constants.font, fontSize: 14, color: Colors.white),)
+                      )
+                      
+                    ],
+                  ),
                 ),
-              ),
-              Flexible(
+                Flexible(
                 child: Container(
                   color: ColorUtils.blue_app,
                   padding: EdgeInsets.only(left: 30, right: 30, bottom: 16),
@@ -237,7 +237,8 @@ class PomoState extends State<Pomo> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children:<Widget>[
                           CRButton(text: "Submit", onClick: (){
-                            Navigator.push(context, SlideTopRoute(
+                      
+                            Navigator.pushReplacement(context, SlideTopRoute(
                               page: PomoTracker()
                             ));
                           },)

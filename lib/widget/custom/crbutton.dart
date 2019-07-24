@@ -11,7 +11,7 @@ class CRButton extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
      return RaisedButton(
-       color: ColorUtils.blue_app,
+       color: ColorUtils.blue_button,
       onPressed: (){
         onClick();
       },
