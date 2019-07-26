@@ -1,11 +1,15 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pomodoro_apps/model/cril_data.dart';
 import 'package:pomodoro_apps/utils/animation.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 import 'package:pomodoro_apps/widget/custom/back.dart';
 import 'package:pomodoro_apps/widget/custom/crbutton.dart';
 import 'package:pomodoro_apps/widget/custom/critem.dart';
+import 'package:pomodoro_apps/widget/custom/group_timer.dart';
+import 'package:pomodoro_apps/widget/custom/radio_focus.dart';
 import 'package:pomodoro_apps/widget/pomo/pomo_tracker.dart';
 
 class Pomo extends StatefulWidget {
@@ -14,10 +18,26 @@ class Pomo extends StatefulWidget {
 }
 
 class PomoState extends State<Pomo> {
-  double sliderValue = 10;
+  double sliderValue = 0;
+  String strSlider = "";
+  bool isRinging = true;
+  bool isVibrate = true;
+  int longBreak = 0;
+  Focussing focussing;
+
+  final nameController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final _scaffoldKey = GlobalKey<ScaffoldState>();
+
     return Scaffold(
+        key: _scaffoldKey,
         body: Container(
             margin: EdgeInsets.only(top: 24),
             height: MediaQuery.of(context).size.height,
@@ -61,13 +81,14 @@ class PomoState extends State<Pomo> {
                             padding: EdgeInsets.only(left: 5, right: 5),
                             color: ColorUtils.blue_item,
                             child:TextField(
-                            style:TextStyle(fontFamily: Constants.font, color: Colors.white),
-                            decoration: InputDecoration(
-                                hintText: "Crill Name",
-                                  border: InputBorder.none,
-                                hintStyle: TextStyle(fontFamily: Constants.font, color: Colors.white54),
-                                fillColor: ColorUtils.blue_item),
-                          ))
+                              controller: nameController,
+                              style:TextStyle(fontFamily: Constants.font, color: Colors.white),
+                              decoration: InputDecoration(
+                                  hintText: "Crill Name",
+                                    border: InputBorder.none,
+                                  hintStyle: TextStyle(fontFamily: Constants.font, color: Colors.white54),
+                                  fillColor: ColorUtils.blue_item),
+                            ))
                       ),
                       Text("Focusing",
                           style: TextStyle(
@@ -84,56 +105,12 @@ class PomoState extends State<Pomo> {
 
                       Padding(
                         padding: EdgeInsets.only(top: 10, bottom: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Column(
-                              children:<Widget>[
-                              CRItem(
-                                  child: Container(
-                                    width: 75,
-                                    child:Column(children: <Widget>[
-                                      Image.asset("assets/img/eye_open.png", width: 25,),
-                                      Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("Relax", style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
-                                    ])
-                                  )
-                                ),
-                                Padding(padding:EdgeInsets.only(top: 4), child:Text("20F - 10B", style:TextStyle(color:Colors.white, fontFamily:Constants.font, fontSize: 12)))
-                              ]
-                            ),
-                            
-                            Column(
-                              children:<Widget>[
-                              CRItem(
-                                  child: Container(
-                                    width: 75,
-                                    child:Column(children: <Widget>[
-                                      Image.asset("assets/img/eye_open_2.png", width: 25,),
-                                      Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("Normal", style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
-                                    ])
-                                  )
-                                ),
-                                Padding(padding:EdgeInsets.only(top: 4), child:Text("25F - 5B", style:TextStyle(color:Colors.white, fontFamily:Constants.font, fontSize: 12)))
-                              ]
-                            ),
-
-                            Column(
-                              children:<Widget>[
-                              CRItem(
-                                  child: Container(
-                                    width: 75,
-                                    child:Column(children: <Widget>[
-                                      Image.asset("assets/img/eye_open_3.png", width: 25,),
-                                      Padding(padding:EdgeInsets.only(top: 16, bottom: 8), child:Text("No Blingking", style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
-                                    ])
-                                  )
-                                ),
-                                Padding(padding:EdgeInsets.only(top: 4), child:Text("50F - 10B", style:TextStyle(color:Colors.white, fontFamily:Constants.font, fontSize: 12)))
-                              ]
-                            )
-
-                          ],
-                        ),
+                        child: RadioFocus(
+                          onSelected: (focus){
+                            focussing = focus;
+                          },
+                        )
+                      
                       ),
                       Text("Long Break",
                           style: TextStyle(
@@ -149,23 +126,12 @@ class PomoState extends State<Pomo> {
 
                       Padding(
                         padding: EdgeInsets.only(top: 8, bottom: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            CRItem(
-                              child: Text("15 Minutes", style:TextStyle(color:Colors.white, fontSize: 11, fontFamily:Constants.font)),
-                            ),
-                            CRItem(
-                              child: Text("30 Minutes", style:TextStyle(color:Colors.white, fontSize: 11,fontFamily:Constants.font)),
-                            ),
-                            CRItem(
-                              child: Text("45 Minutes", style:TextStyle(color:Colors.white,fontSize: 11,  fontFamily:Constants.font)),
-                            ),
-                            CRItem(
-                              child: Text("60 Minutes", style:TextStyle(color:Colors.white,fontSize: 11, fontFamily:Constants.font)),
-                            ),
-                          ],
-                        ),
+                        child: GroupTimer(
+                          onSelected: (longBreak){
+
+                          },
+                        )
+                        
                       ),      
 
                       Text("Target Crils",
@@ -180,17 +146,26 @@ class PomoState extends State<Pomo> {
                             fontSize: 12,
                             color: Colors.white)),
 
-                      Padding(padding: EdgeInsets.only(top: 8, bottom: 8 ), child:
-                        Slider(
-                          activeColor: Colors.white,
-                          min: 0,
-                          max: 20,
-                          onChanged: (newRating){
-                            setState(() {
-                               setState(() => sliderValue = newRating);
-                            });
-                          },
-                          value: sliderValue,
+                      Padding(padding: EdgeInsets.only(top: 8, bottom: 10 ), child:
+                        Stack(
+                          children:<Widget>[
+                          Slider(
+                            activeColor: Colors.white,
+                            min: 0,
+                            max: 8,
+                            onChanged: (newRating){
+                              setState(() {
+                                //print("range "+newRating.toInt().toString());
+                                strSlider = newRating.toInt().toString() == "0" ? "Free" : newRating.toInt().toString();
+                                sliderValue = newRating;
+                              });
+                            },
+                            value: sliderValue,
+                          ),
+                            Padding(padding: EdgeInsets.only(top: 40), child:
+                              Text(strSlider, style: TextStyle(color: Colors.white),)
+                            )
+                          ]
                         )
                       ),      
                       Text("Notification",
@@ -213,19 +188,33 @@ class PomoState extends State<Pomo> {
                           children: <Widget>[
                               Expanded(
                               flex: 1,
-                              child: CRItem(
-                                 active: true,
+                              child: GestureDetector(
+                                child:CRItem(
+                                 active: isRinging,
                                 margin: EdgeInsets.only(right: 8),
                                 child: Text("Ring", textAlign: TextAlign.center,style:TextStyle(color:Colors.white, fontSize: 11, fontFamily:Constants.font)),
                               ),
+                              onTap: (){
+                                setState(() {
+                                   isRinging = !isRinging;
+                                });
+                              })
                             ),
                             Expanded(
                               flex: 1,
-                              child: CRItem(
-                                active: true,
-                                margin: EdgeInsets.only(left: 8),
-                                child: Text("Vibration", textAlign: TextAlign.center,style:TextStyle(color:Colors.white, fontSize: 11, fontFamily:Constants.font)),
-                              ),
+                              child: GestureDetector(
+                                child:CRItem(
+                                  active: isVibrate,
+                                  margin: EdgeInsets.only(left: 8),
+                                  child: Text("Vibration", textAlign: TextAlign.center,style:TextStyle(color:Colors.white, fontSize: 11, fontFamily:Constants.font)),
+                                ),
+                                onTap: (){
+                                  setState(() {
+                                    isVibrate = !isVibrate;
+                                  });
+                                },
+                              ) 
+                             
                             )
                           ],
                         ),
@@ -237,11 +226,25 @@ class PomoState extends State<Pomo> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children:<Widget>[
                           CRButton(text: "Submit", onClick: (){
-                      
-                            Navigator.pushReplacement(context, SlideTopRoute(
-                              page: PomoTracker()
-                            ));
-                          },)
+                            if(nameController.text == ""){
+                              _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                                  content: new Text("Fill the Name & Other Param"),
+                              ));
+                            }else{
+                              final data = CrilData(
+                                crilName: nameController.text, 
+                                focussing: focussing,
+                                longBreak: longBreak,
+                                targetCrill: sliderValue.toInt(),
+                              );
+                              print("data "+data.crilName+" "+data.focussing.toString());
+                               Navigator.pushReplacement(context, SlideTopRoute(
+                                page: PomoTracker(
+                                  crilData: data,
+                                )
+                              )); 
+                            }
+                          })
                           ]
                         )
                        )
@@ -251,4 +254,5 @@ class PomoState extends State<Pomo> {
               )
             ])));
   }
+
 }

@@ -1,0 +1,4 @@
+enum FocusEvent{
+  focus,
+  unfocus
+}

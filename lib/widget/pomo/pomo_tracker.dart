@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pomodoro_apps/model/cril_data.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 import 'package:pomodoro_apps/widget/custom/back.dart';
@@ -6,6 +7,8 @@ import 'package:pomodoro_apps/widget/custom/crbutton.dart';
 import 'package:pomodoro_apps/widget/custom/crtimer.dart';
 
 class PomoTracker extends StatefulWidget{
+  final CrilData crilData;
+  PomoTracker({this.crilData});
   @override
   State<StatefulWidget> createState() => PomoTrackerState();
 
@@ -68,7 +71,7 @@ class PomoTrackerState extends State<PomoTracker>{
                       ),
                       dotIndicator(),
                       textCril(),
-                      Padding(padding: EdgeInsets.only(bottom: 5), child:Text("Normal", textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 13, color: Colors.white))),
+                      Padding(padding: EdgeInsets.only(bottom: 5), child:Text(getFocussing(widget.crilData.focussing), textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 13, color: Colors.white))),
                       Padding(padding: EdgeInsets.only(bottom: 5), child:Text("Unlimited Session", textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 13, color: Colors.white))),
                       Padding(padding: EdgeInsets.only(bottom: 10), child:Text("Long Break - 15 Minutes", textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 13, color: Colors.white))),
                       buttonControl(),
@@ -126,6 +129,11 @@ class PomoTrackerState extends State<PomoTracker>{
             )
       ),
     );
+  }
+
+  String getFocussing(Focussing focussing){
+    return focussing == Focussing.Normal ? "Normal" : focussing == Focussing.Relax ? "Relax" : "No Blinking";
+
   }
 
   Widget completeCril(){
@@ -203,7 +211,7 @@ class PomoTrackerState extends State<PomoTracker>{
   Widget textCril(){
     return Padding(
       padding: EdgeInsets.only(top: 30, bottom: 20),
-      child: Text("Studying on Math", textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 18, color: Colors.white),),
+      child: Text(widget.crilData.crilName, textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 18, color: Colors.white),),
     );
   }
 
