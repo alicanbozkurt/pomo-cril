@@ -68,7 +68,7 @@ class RadioFocusState extends State<RadioFocus> {
         ),
          GestureDetector(
           child: FocusItem(
-            focusData: listData[1],
+            focusData: listData[2],
             position: 2,
             isActive: isActiveTrigger.value == 2,
           ),

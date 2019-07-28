@@ -3,8 +3,9 @@ class CrilData{
   final Focussing focussing;
   final int longBreak;
   final int targetCrill;
+  final Setting setting;
 
-  CrilData({this.crilName, this.focussing, this.longBreak, this.targetCrill}); 
+  CrilData({this.crilName, this.focussing, this.longBreak, this.targetCrill, this.setting}); 
 }
 
 enum Focussing{

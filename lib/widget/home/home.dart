@@ -34,10 +34,6 @@ class HomeState extends State<Home>{
         backgroundColor: ColorUtils.blue_app,
       child: Image.asset(isEmpty ? "assets/img/icon_home_empty.png" : "assets/img/icon_home.png"), onPressed: () {
         if(isEmpty){
-          setState(() {
-            isEmpty = false;
-          });
-        }else{
            Navigator.push(context, SlideTopRoute(page: Pomo()));
         }
       }),

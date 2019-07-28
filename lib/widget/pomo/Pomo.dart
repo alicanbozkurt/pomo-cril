@@ -22,10 +22,9 @@ class PomoState extends State<Pomo> {
   String strSlider = "";
   bool isRinging = true;
   bool isVibrate = true;
-  int longBreak = 0;
-  Focussing focussing;
-
-  final nameController = TextEditingController();
+  int longBreakValue = 0;
+  Focussing focussing = Focussing.Relax;
+  String crilName = "";
 
   @override
   void dispose() {
@@ -34,10 +33,9 @@ class PomoState extends State<Pomo> {
 
   @override
   Widget build(BuildContext context) {
-    final _scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-        key: _scaffoldKey,
+        // key: _scaffoldKey,
         body: Container(
             margin: EdgeInsets.only(top: 24),
             height: MediaQuery.of(context).size.height,
@@ -81,7 +79,9 @@ class PomoState extends State<Pomo> {
                             padding: EdgeInsets.only(left: 5, right: 5),
                             color: ColorUtils.blue_item,
                             child:TextField(
-                              controller: nameController,
+                              onChanged: (name){
+                                crilName = name;
+                              },
                               style:TextStyle(fontFamily: Constants.font, color: Colors.white),
                               decoration: InputDecoration(
                                   hintText: "Crill Name",
@@ -128,7 +128,8 @@ class PomoState extends State<Pomo> {
                         padding: EdgeInsets.only(top: 8, bottom: 20),
                         child: GroupTimer(
                           onSelected: (longBreak){
-
+                            longBreakValue = longBreak;
+                            print("Long break : "+longBreakValue.toString());
                           },
                         )
                         
@@ -226,19 +227,21 @@ class PomoState extends State<Pomo> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children:<Widget>[
                           CRButton(text: "Submit", onClick: (){
-                            if(nameController.text == ""){
-                              _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                                  content: new Text("Fill the Name & Other Param"),
-                              ));
+                            if(crilName == ""){
+                              // _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                              //     content: new Text("Fill the Name & Other Param"),
+                              // ));
                             }else{
+                              final setting = Setting(isRinging: isRinging, isVibrate: isVibrate);
                               final data = CrilData(
-                                crilName: nameController.text, 
+                                crilName: crilName, 
                                 focussing: focussing,
-                                longBreak: longBreak,
+                                longBreak: longBreakValue,
                                 targetCrill: sliderValue.toInt(),
+                                setting: setting
                               );
-                              print("data "+data.crilName+" "+data.focussing.toString());
-                               Navigator.pushReplacement(context, SlideTopRoute(
+                              print("data "+data.crilName+" "+data.focussing.toString()+" long break "+setting.isRinging.toString());
+                               Navigator.push(context, SlideTopRoute(
                                 page: PomoTracker(
                                   crilData: data,
                                 )
