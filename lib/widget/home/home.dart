@@ -4,6 +4,7 @@ import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 import 'package:pomodoro_apps/widget/pomo/Pomo.dart';
 import 'package:pomodoro_apps/widget/setting/setting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget{
   @override
@@ -13,8 +14,19 @@ class Home extends StatefulWidget{
 
 class HomeState extends State<Home>{
 
-  bool isEmpty = true;
+  @override
+  void initState() {
+    initialData();
+    super.initState();
+  }
 
+  initialData() async {
+    Future<SharedPreferences> prefs = SharedPreferences.getInstance();
+    prefs.then((prefData){
+      DataApp.isEmpty = prefData.getBool('isEmpty') == null ? true : prefData.getBool('isEmpty');
+    });
+    
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +34,7 @@ class HomeState extends State<Home>{
           child: Stack(
             children: <Widget>[
               titleWidget(),
-              isEmpty ? emptyCril() : fillCril()
+              DataApp.isEmpty ? emptyCril() : fillCril()
             ],
           )
           
@@ -32,10 +44,8 @@ class HomeState extends State<Home>{
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         backgroundColor: ColorUtils.blue_app,
-      child: Image.asset(isEmpty ? "assets/img/icon_home_empty.png" : "assets/img/icon_home.png"), onPressed: () {
-        if(isEmpty){
+      child: Image.asset(DataApp.isEmpty ? "assets/img/icon_home_empty.png" : "assets/img/icon_home.png"), onPressed: () {
            Navigator.push(context, SlideTopRoute(page: Pomo()));
-        }
       }),
       bottomNavigationBar: BottomAppBar(
         notchMargin: 4,

@@ -13,7 +13,7 @@ class GroupTimer extends StatefulWidget{
 }
 
 class StateGroupTimer extends State<GroupTimer>{
-  final indexSelected = ValueNotifier(0);
+  final indexSelected = ValueNotifier(1);
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(

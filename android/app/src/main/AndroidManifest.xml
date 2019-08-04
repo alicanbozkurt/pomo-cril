@@ -6,13 +6,13 @@
          In most cases you can leave this as-is, but you if you want to provide
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="pomodoro_apps"
+        android:label="Crillo"
         theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"
-        android:icon="@mipmap/ic_launcher">
-
-        <uses-permission android:name="android.permission.VIBRATE" />
+        android:icon="@mipmap/launcher_icon">
         
         <activity 
             android:name=".MainActivity"

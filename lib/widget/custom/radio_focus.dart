@@ -30,13 +30,8 @@ class RadioFocusState extends State<RadioFocus> {
                     ];
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-     final isActiveTrigger = ValueNotifier(0);
+     final isActiveTrigger = ValueNotifier(2);
     return ValueListenableBuilder<int>(
      valueListenable: isActiveTrigger,
         builder: (context, value, child) {
@@ -47,33 +42,30 @@ class RadioFocusState extends State<RadioFocus> {
         GestureDetector(
           child: FocusItem(
             focusData: listData[0],
-            position: 0,
-            isActive: isActiveTrigger.value == 0,
+            isActive: isActiveTrigger.value == 1,
           ),
           onTap: (){
-            isActiveTrigger.value = 0;
+            isActiveTrigger.value = 1;
             widget.onSelected(Focussing.Relax);
           },
         ),
          GestureDetector(
           child: FocusItem(
             focusData: listData[1],
-            position: 1,
-            isActive: isActiveTrigger.value == 1,
+            isActive: isActiveTrigger.value == 2,
           ),
           onTap: (){
-            isActiveTrigger.value = 1;
+            isActiveTrigger.value = 2;
              widget.onSelected(Focussing.Normal);
           }
         ),
          GestureDetector(
           child: FocusItem(
             focusData: listData[2],
-            position: 2,
-            isActive: isActiveTrigger.value == 2,
+            isActive: isActiveTrigger.value == 3,
           ),
           onTap: (){
-            isActiveTrigger.value = 2;
+            isActiveTrigger.value = 3;
              widget.onSelected(Focussing.NoBlinking);
           }
         ),

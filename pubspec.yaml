@@ -26,6 +26,9 @@ dependencies:
   shared_preferences:
   flutter_ringtone_player:
   vibration:
+  flutter_local_notifications:
+  flutter_launcher_icons: "^0.7.2"
+  path_provider: 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -34,6 +37,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  image_path: "assets/img/logo.png" 
+  android: "launcher_icon"
+  ios: true
 
 
 # For information on the generic Dart part of this file, see the

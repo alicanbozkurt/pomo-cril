@@ -6,20 +6,21 @@ import 'package:pomodoro_apps/utils/constants.dart';
 class CRButton extends StatelessWidget{
   final String text;
   final Function onClick;
-  CRButton({this.onClick, this.text});
+  final bool isWhite;
+  CRButton({this.onClick, this.text, this.isWhite});
 
   @override
   Widget build(BuildContext context) {
      return RaisedButton(
-       color: ColorUtils.blue_button,
+       color: isWhite? Colors.white : ColorUtils.blue_button,
       onPressed: (){
         onClick();
       },
       child: Text(
-          text, style: TextStyle(fontFamily: Constants.font, color: Colors.white),
+          text, style: TextStyle(fontFamily: Constants.font, color: isWhite? ColorUtils.blue_button :Colors.white ),
       ),
        shape: new RoundedRectangleBorder(
-         side: BorderSide(color: Colors.white),
+         side: BorderSide(color: isWhite? ColorUtils.blue_button :Colors.white),
          borderRadius: new BorderRadius.all(Radius.circular(8)),
        )
      

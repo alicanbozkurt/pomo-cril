@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 import 'package:pomodoro_apps/widget/home/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Intro extends StatefulWidget {
   @override
@@ -23,6 +24,7 @@ class IntroState extends State<Intro> {
   bool disableSkip = false;
   String textStart = "Next";
   int currentPage = 0;
+  Future<SharedPreferences> preff;
 
   List<ItemPage> listPage = [
     ItemPage(
@@ -42,6 +44,7 @@ class IntroState extends State<Intro> {
   @override
   void initState() {
     super.initState();
+    preff = SharedPreferences.getInstance();
   }
   @override
   Widget build(BuildContext context) {
@@ -105,9 +108,9 @@ class IntroState extends State<Intro> {
                           ), iconSize: 40,
                           onPressed: (){
                             if(!disableSkip){
-                            Navigator.push(context, 
-                            MaterialPageRoute(builder: (context) => Home())
-                            );
+                              Navigator.pushReplacement(context, 
+                              MaterialPageRoute(builder: (context) => Home())
+                             );
                             }
                           },
                           )
@@ -157,6 +160,10 @@ class IntroState extends State<Intro> {
                             currentPage++;
                             animate(currentPage);
                           }else{
+                            
+                            preff.then((pref){
+                              pref.setBool('visibleIntro', false);
+                            });
                            Navigator.pushReplacement(context, 
                             MaterialPageRoute(builder: (context) => Home())
                             );
