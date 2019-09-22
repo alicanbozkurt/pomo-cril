@@ -10,10 +10,12 @@ import 'package:pomodoro_apps/widget/custom/crbutton.dart';
 import 'package:pomodoro_apps/widget/custom/critem.dart';
 import 'package:pomodoro_apps/widget/custom/group_timer.dart';
 import 'package:pomodoro_apps/widget/custom/radio_focus.dart';
-import 'package:pomodoro_apps/widget/custom/slider_target.dart';
+import 'package:pomodoro_apps/widget/home/home.dart';
 import 'package:pomodoro_apps/widget/pomo/pomo_tracker.dart';
 
 class Pomo extends StatefulWidget {
+  final HomeState homeState;
+  Pomo({this.homeState});
   @override
   State<StatefulWidget> createState() => PomoState();
 }
@@ -34,7 +36,7 @@ class PomoState extends State<Pomo> {
 
   @override
   Widget build(BuildContext context) {
-
+    final inputController = TextEditingController();
     return Scaffold(
         // key: _scaffoldKey,
         body: Container(
@@ -81,13 +83,13 @@ class PomoState extends State<Pomo> {
                               padding: EdgeInsets.only(left: 5, right: 5),
                               color: ColorUtils.blue_item,
                               child:TextField(
-                                onChanged: (name){
-                                  crilName = name;
+                                onChanged: (value){
+                                  crilName = value;
                                 },
                                 style:TextStyle(fontFamily: Constants.font, color: Colors.white),
                                 decoration: InputDecoration(
                                     hintText: "Insert your activity",
-                                      border: InputBorder.none,
+                                    border: InputBorder.none,
                                     hintStyle: TextStyle(fontFamily: Constants.font, color: Colors.white54),
                                     fillColor: ColorUtils.blue_item),
                               ))
@@ -135,23 +137,7 @@ class PomoState extends State<Pomo> {
                             },
                           )
                           
-                        ),      
-
-                      /*   Text("Target Crils",
-                            style: TextStyle(
-                                fontFamily: Constants.font,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Colors.white)),
-                        Text("After four cril you should take a long breath",
-                          style: TextStyle(
-                              fontFamily: Constants.font,
-                              fontSize: 12,
-                              color: Colors.white)), */
-
-                        /* SliderTarget(getValue: (newTargetValue){
-                          sliderValue = newTargetValue;
-                        }),   */    
+                        ),        
 
                         Text("Notification",
                             style: TextStyle(
@@ -215,9 +201,7 @@ class PomoState extends State<Pomo> {
                             children:<Widget>[
                           CRButton(isWhite: false,
                             text: "Set", onClick: (){
-                            if(crilName == ""){
-                              
-                            }else{
+                            if(crilName.isNotEmpty){
                               final setting = Setting(isRinging: isRinging, isVibrate: isVibrate);
                               final data = CrilData(
                                 crilName: crilName, 
@@ -230,6 +214,7 @@ class PomoState extends State<Pomo> {
                                Navigator.push(context, SlideTopRoute(
                                 page: PomoTracker(
                                   crilData: data,
+                                  homeState: widget.homeState,
                                 )
                               )); 
                             }

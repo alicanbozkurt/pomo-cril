@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pomodoro_apps/model/cril_data.dart';
+import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 
-import 'critem.dart';
 
 class FocusData {
   final String icon;
@@ -29,9 +29,11 @@ class RadioFocusState extends State<RadioFocus> {
                       FocusData(icon:"assets/img/eye_open_3.png", title: "No Blingking", desc: "50F - 10B"),
                     ];
 
+ final isActiveTrigger = ValueNotifier(2);
+
   @override
   Widget build(BuildContext context) {
-     final isActiveTrigger = ValueNotifier(2);
+    
     return ValueListenableBuilder<int>(
      valueListenable: isActiveTrigger,
         builder: (context, value, child) {
@@ -98,12 +100,22 @@ class FocusItem extends StatefulWidget{
 
 class FocusItemState extends State<FocusItem>{
 
-
+  @override
+    void initState() {
+    super.initState();
+  }
+  
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        CRItem(
-              child: Container(
+        Container(
+        padding: EdgeInsets.only(top:16, bottom: 16, right: 10, left: 10),
+          decoration: BoxDecoration(
+            color: ColorUtils.blue_item,
+            borderRadius: new BorderRadius.all(Radius.circular(8)),
+              border: new Border.all(color: widget.isActive ?Colors.white: ColorUtils.blue_item, width: 1),
+          ),
+          child: Container(
                 width: 75,
                 child:Column(children: <Widget>[
                   Image.asset(widget.focusData.icon, width: 25,),
@@ -112,9 +124,7 @@ class FocusItemState extends State<FocusItem>{
                     style: TextStyle(fontFamily: Constants.font,fontSize: 11, color: Colors.white),))
                 ])
               ),
-              position: widget.position,
-              active: widget.isActive,
-                ),
+            ),
         Padding(padding:EdgeInsets.only(top: 4), child:Text( widget.focusData.desc,
                  style:TextStyle(color:Colors.white, fontFamily:Constants.font, fontSize: 12)))
       ],

@@ -1,24 +1,29 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:local_notifications/local_notifications.dart';
 import 'package:pomodoro_apps/model/cril_data.dart';
+import 'package:pomodoro_apps/model/crill_model.dart';
 import 'package:pomodoro_apps/utils/animation.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
-import 'package:pomodoro_apps/utils/notification_helper.dart';
+import 'package:pomodoro_apps/utils/db_helper.dart';
 import 'package:pomodoro_apps/widget/custom/back.dart';
 import 'package:pomodoro_apps/widget/custom/crbutton.dart';
 import 'package:pomodoro_apps/widget/custom/crdialog.dart';
 import 'package:pomodoro_apps/widget/custom/crtimer.dart';
+import 'package:pomodoro_apps/widget/home/home.dart';
+import 'package:pomodoro_apps/utils/notification_helper.dart';
 import 'package:pomodoro_apps/widget/pomo/pomo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 
 class PomoTracker extends StatefulWidget{
   final CrilData crilData;
-  PomoTracker({this.crilData});
+  final HomeState homeState;
+  PomoTracker({Key key, this.crilData, this.homeState}) : super(key: key);
   @override
   State<StatefulWidget> createState() => PomoTrackerState();
 
@@ -34,28 +39,165 @@ enum StateTracker{
   DONE
 }
 
-class PomoTrackerState extends State<PomoTracker>{
+class PomoTrackerState extends State<PomoTracker> with WidgetsBindingObserver{
   StateTracker stateTracker = StateTracker.IDLE;
   int minutes = 0;
   int second = 0;
-  Timer timer;
   int crillingValue = -1;
 
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin; 
+  static const MethodChannel platform =
+      MethodChannel('com.example.pomodoro_apps/service');
+  bool _connectedToService = false;
+  int _currentSeconds = 0;
+  Timer _timer;
+  bool _started = false;
+
+  NotificationHelper notificationHelper = NotificationHelper();
 
   @override
   void initState() {
     super.initState();
-    initNotification();
+    notificationHelper.init();
     minutes = DataApp.isForTest ? 1 : getMinusCriling(widget.crilData.focussing);
+    minutes = minutes * 60;
+    _currentSeconds = minutes;
+
+    WidgetsBinding.instance.addObserver(this);
+    connectToService();
   }
 
   @override
   void dispose() {
-    if(timer != null)
-      timer.cancel();
+    if(_timer != null)
+      _timer.cancel();
     super.dispose();
   }
+
+  String formatTime(int total) {
+    final int minutes = (total / 60).floor();
+    final int seconds = total - minutes * 60;
+    
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+
+  Future<void> connectToService() async {
+    try {
+      await platform.invokeMethod<void>('connect');
+      print('Connected to service');
+      /* Scaffold.of(context).showSnackBar(const SnackBar(
+          content: Text('Connected to app service'),
+          duration: Duration(seconds: 2))); */
+    } on Exception catch (e) {
+      print(e.toString());
+      Scaffold.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not connect to app service.')));
+      return;
+    }
+
+      try {
+        final int serviceCurrentSeconds = await getServiceCurrentSeconds();
+     
+          _connectedToService = true;
+
+          if (serviceCurrentSeconds <= 0) {
+            _currentSeconds = minutes;
+            _started = false;
+            _timer?.cancel();
+          } else {
+            _currentSeconds = serviceCurrentSeconds;
+            _started = true;
+            const Duration oneSecond = Duration(seconds: 1);
+            _timer =
+                Timer.periodic(oneSecond, (Timer timer) => setState(updateTimer));
+          }
+        
+      } on PlatformException catch (e) {
+        print(e.toString());
+      } on Exception catch (e) {
+        print(e.toString());
+      }
+    
+  }
+
+  void updateTimer() {
+    if (_currentSeconds == 1) {
+      _timer.cancel();
+     
+      _started = false;
+
+      setState(() {
+            if(stateTracker == StateTracker.CRILLING){
+              stateTracker = StateTracker.OVERTIME;
+              crillingValue++;
+            }else if(stateTracker == StateTracker.LONGBREAK){
+              doneState();
+            }else
+              stateTracker = StateTracker.CRILLING_COMPLETE;
+              
+          });
+      playNotification();
+      _currentSeconds = 0;
+
+      stopTimer(false);
+    }
+    else {
+      _currentSeconds--;
+    }
+
+   
+  }
+
+  doneState(){
+    stateTracker = StateTracker.DONE;
+    saveCrill();
+  }
+
+
+  Future<void> startServiceTimer(int duration) async {
+
+    try {
+      await platform
+          .invokeMethod<void>('start', <String, int>{'duration': duration});
+    } on PlatformException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> stopServiceTimer() async {
+
+    try {
+      await platform.invokeMethod<void>('stop');
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<int> getServiceCurrentSeconds() async {
+    try {
+      final int result = await platform.invokeMethod<int>('getCurrentSeconds');
+      return result;
+    } on PlatformException catch (e) {
+      print(e.toString());
+    }
+
+    return 0;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    print("stata app :"+state.toString());
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.suspending) {
+      _timer?.cancel();
+    } else if (state == AppLifecycleState.resumed) {
+      connectToService();
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +252,7 @@ class PomoTrackerState extends State<PomoTracker>{
                         child: stateTracker == StateTracker.DONE ?
                         completeCril():
                         CRTimer(children: <Widget>[
-                          Padding(padding:EdgeInsets.only(top: 20, bottom: 10), child: Text(secondMinutesText(minutes)+":"+secondMinutesText(second), style: TextStyle(fontFamily: Constants.font, fontSize: 35, color: Colors.white))),
+                          Padding(padding:EdgeInsets.only(top: 20, bottom: 10), child: Text(formatTime(_currentSeconds), style: TextStyle(fontFamily: Constants.font, fontSize: 35, color: Colors.white))),
                           Text(textStatusTitle(), textAlign: TextAlign.center,style: TextStyle(fontFamily: Constants.font, fontSize: 16, color: Colors.white),),
                         ], stateTracker:  stateTracker) 
                       ),
@@ -146,23 +288,27 @@ class PomoTrackerState extends State<PomoTracker>{
                                      setState(() {
                                       stateTracker = StateTracker.LONGBREAK;
                                       minutes = DataApp.isForTest ? 1 : widget.crilData.longBreak;
+                                      _currentSeconds = minutes * 60;
                                       startTimer(false);
                                       });
 
                                     }else{ // short break
-                                      minutes = DataApp.isForTest ? 1 : getShortBreakCrilling(widget.crilData.focussing);
-                                      stateTracker = StateTracker.SHORTBREAK;
-                                      playNotification();
-                                      startTimer(true);
+                                     shortBreak();
                                     }
                                   });
                                   }
                                   else if(stateTracker == StateTracker.CRILLING_COMPLETE
                                     || stateTracker == StateTracker.SHORTBREAK){
                                    setState(() =>  stateTracker = StateTracker.CRILLING);
-                                    resetValue();
-                                    playNotification();
-                                    startTimer(true);
+                                    print("fokus now ");
+                                    stopTimer(false);  
+                                    Future.delayed(Duration(milliseconds: 500),(){
+                                      resetValue();
+                                      playNotification();
+                                      startTimer(true);
+                                    });
+
+                                    
                                   }else if(stateTracker == StateTracker.LONGBREAK){
                                     Navigator.push(context, SlideTopRoute(
                                     page: Pomo())); 
@@ -182,13 +328,12 @@ class PomoTrackerState extends State<PomoTracker>{
                                 onTap: (){
                                   if(stateTracker == StateTracker.CRILLING_COMPLETE){
                                     setState(() {
-                                     /*  stateTracker = StateTracker.LONGBREAK;
-                                      minutes = DataApp.isForTest ? 1 : widget.crilData.longBreak;
-                                      startTimer(false); */
                                        setState(() =>  stateTracker = StateTracker.DONE);
+                                       saveCrill();
                                       });
                                   }else{
                                     setState(() =>  stateTracker = StateTracker.DONE);
+                                    saveCrill();
                                   }
                                 },
                               )
@@ -242,15 +387,10 @@ class PomoTrackerState extends State<PomoTracker>{
                                   startTimer(true);
                                   playNotification();
                                 }else if(stateTracker == StateTracker.OVERTIME){
-                                  stateTracker = StateTracker.DONE;
+                                  doneState();
                                 }else if(stateTracker == StateTracker.CRILLING){
                                   // Give Up
-                                  stopTimer();
-                                  Future.delayed(const Duration(milliseconds: 100), () {
-                                    
-                                      showDialogNotif();
-
-                                  });
+                                  _giveUp();
                                  
                                 }else{  
                                   //stateTracker = StateTracker.DONE;
@@ -273,23 +413,21 @@ class PomoTrackerState extends State<PomoTracker>{
     );
   }
 
-  void initNotification(){
-    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
-    // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
-    var initializationSettingsAndroid =
-        new AndroidInitializationSettings('launcher_icon');
-    var initializationSettingsIOS = new IOSInitializationSettings(
-        onDidReceiveLocalNotification: (id, title, body, payload) async{
-
-        });
-    var initializationSettings = new InitializationSettings(
-        initializationSettingsAndroid, initializationSettingsIOS);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (data) async{
-
-        });
-
+  _giveUp(){
+      stopTimer(true);
+      Future.delayed(const Duration(milliseconds: 100), () {
+          showDialogNotif();
+      });
   }
+
+  shortBreak(){
+    minutes = DataApp.isForTest ? 1 : getShortBreakCrilling(widget.crilData.focussing);
+    _currentSeconds = minutes * 60;
+    stateTracker = StateTracker.SHORTBREAK;
+    playNotification();
+    startTimer(true);
+  }
+
 
   void playNotification(){
 
@@ -311,16 +449,11 @@ class PomoTrackerState extends State<PomoTracker>{
   }
 
   void showNotification(){
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-    'your channel id', 'your channel name', 'your channel description',
-    importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
-    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-    var platformChannelSpecifics = NotificationDetails(
-    androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+   
 
     print("notification play ");
     final titleNotif = stateTracker == StateTracker.CRILLING ?
-    "You're focused ("+(crillingValue +1 == 0 ? 1 : crillingValue +1).toString()+"/4)." :
+    "You're focused ("+(crillingValue + 2).toString()+"/4)." :
     stateTracker == StateTracker.OVERTIME ? "It's time to break!" :
     stateTracker == StateTracker.SHORTBREAK ? "Break Time" :
     "Crill Cycle is done!";
@@ -331,7 +464,129 @@ class PomoTrackerState extends State<PomoTracker>{
     stateTracker == StateTracker.CRILLING_COMPLETE ? getShortBreakCrilling(widget.crilData.focussing).toString()+":00":
     "If you are going to start a new serie you should give a long break.";
 
-    showIconNotification(context, flutterLocalNotificationsPlugin, title: titleNotif, body: descNotif, icon:'assets/img/ic_notif.png', id: 2);
+    final action = stateTracker == StateTracker.CRILLING ? [
+       NotificationAction(
+            actionText: "Give Up",
+            callbackName: "clickGiveUp",
+            callback: (data){
+              print("give up button");
+              _giveUp();
+            },
+            payload: "giveup",
+            launchesApp: true
+        ),
+    ] : stateTracker == StateTracker.OVERTIME ?
+      crillingValue >= 5  ?
+      [
+        NotificationAction(
+            actionText: "Long Break",
+             callbackName: "clickLong",
+            callback: (data){
+                print("click long break");
+            },
+            payload: "longbreak",
+            launchesApp: true
+        ),
+       NotificationAction(
+            actionText: "Done",
+            callbackName: "clickDone",
+            callback: (data){
+              print("click done");
+              setState(()=>doneState());
+            },
+            payload: "done",
+            launchesApp: true
+        )
+      ]
+      :
+     [
+      NotificationAction(
+            actionText: "Break Now",
+             callbackName: "clickBreak",
+            callback: (data){
+                print("click disini "+data.toString());
+                setState(() {
+                  shortBreak();
+                });
+            },
+            payload: "breaknow",
+            launchesApp: true
+        ),
+
+        NotificationAction(
+            actionText: "Done",
+             callbackName: "clickDone",
+            callback: (data){
+              print("click done");
+              setState(()=>doneState());
+            },
+            payload: "done",
+            launchesApp: true
+        )
+    ] : stateTracker == StateTracker.SHORTBREAK ? [
+      NotificationAction(
+            actionText: "Focus Now",
+             callbackName: "clickFocus",
+            callback: (data){
+              print("click focus");
+
+               stopTimer(false);  
+               Future.delayed(Duration(milliseconds: 500),(){
+                resetValue();
+                playNotification();
+                startTimer(true);
+              });
+
+            },
+            payload: "focusnow",
+            launchesApp: true
+        ),
+
+        NotificationAction(
+            actionText: "Done",
+             callbackName: "clickDone",
+            callback: (data){
+              print("click done");
+              setState(()=>doneState());
+            },
+            payload: "done",
+            launchesApp: true
+        )
+    ] : [
+
+      NotificationAction(
+            actionText: "Focus Now",
+             callbackName: "clickFocus",
+            callback: (data){
+              print("click focus");
+
+               stopTimer(false);  
+               Future.delayed(Duration(milliseconds: 500),(){
+                resetValue();
+                playNotification();
+                startTimer(true);
+              });
+
+            },
+            payload: "focusnow",
+            launchesApp: true
+        ),
+     
+       NotificationAction(
+            actionText: "Done",
+            callbackName: "clickDone",
+            callback: (data){
+              print("click done");
+              setState(()=>doneState());
+            },
+            payload: "done",
+            launchesApp: true
+        )
+    ];
+
+    notificationHelper.showNotification(titleNotif, descNotif,
+    action
+    );
 
   }
 
@@ -376,7 +631,7 @@ class PomoTrackerState extends State<PomoTracker>{
           onDecline: (){
             print("decline");
             setState(() {
-              stateTracker = StateTracker.DONE;
+              doneState();
             });
           }
       )
@@ -409,16 +664,29 @@ class PomoTrackerState extends State<PomoTracker>{
   }
 
   void resetValue(){
-    second = 0;
-    minutes = DataApp.isForTest ? 1 : (widget.crilData.focussing);
+    minutes = DataApp.isForTest ? 1 : getMinusCriling(widget.crilData.focussing);
+    _currentSeconds = minutes * 60;
   }
 
   void startTimer(bool isFromStart){
    
-   if(isFromStart)
+   if(isFromStart){
     startValue();
+   }
+    startServiceTimer(minutes).then((void _) => setState((){
+      
+       const Duration oneSecond = Duration(seconds: 1);
+     
+      _timer =  Timer.periodic(oneSecond, (Timer timer) => setState(updateTimer));
+            _currentSeconds--;
+            if(isFromStart)
+            minutes = _currentSeconds;
+            _started = true;
+      
+    }));
+   
 
-    const onceSecond = Duration(seconds: 1);
+    /* const onceSecond = Duration(seconds: 1);
     timer = Timer.periodic(onceSecond, (Timer timer) => setState(
       () {
         if (minutes < 1 && second < 1) {
@@ -426,9 +694,10 @@ class PomoTrackerState extends State<PomoTracker>{
             if(stateTracker == StateTracker.CRILLING){
               stateTracker = StateTracker.OVERTIME;
               crillingValue++;
-            }else if(stateTracker == StateTracker.LONGBREAK)
+            }else if(stateTracker == StateTracker.LONGBREAK){
               stateTracker = StateTracker.DONE;
-            else
+              saveCrill();
+            }else
               stateTracker = StateTracker.CRILLING_COMPLETE;
               
           });
@@ -442,11 +711,19 @@ class PomoTrackerState extends State<PomoTracker>{
           print("minutes "+minutes.toString());
         }
       },
-    ));
+    )); */
   }
 
-  void stopTimer(){
-    timer.cancel();
+  void stopTimer(bool pause){
+     stopServiceTimer().then((void _){
+        setState(() {
+            _timer.cancel();
+            _started = false;
+            if(!pause)
+            _currentSeconds = 0;
+          });
+        } 
+      );
   }
 
   List<Widget> getDotFocussIndicator(){
@@ -517,5 +794,20 @@ class PomoTrackerState extends State<PomoTracker>{
         ),
       ],
     );
+  }
+
+  void saveCrill(){
+    final date =  DateTime.now().millisecondsSinceEpoch;
+    final crill = CrillModel(crillName: widget.crilData.crilName, crilCount: crillingValue + 1, date:date);
+    final db = DBHelper();
+    
+    db.saveCrill(crill);
+    print("Save crill ");
+
+    db.getCrillsToday();
+    setState(() {
+      DataApp.isEmpty = false;
+      widget.homeState.getData();
+    });
   }
 }

@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_stetho/flutter_stetho.dart';
 import 'package:pomodoro_apps/utils/color_utils.dart';
 import 'package:pomodoro_apps/utils/constants.dart';
 import 'package:pomodoro_apps/widget/home/home.dart';
 import 'package:pomodoro_apps/widget/intro/intro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown
+  ]);
+   Stetho.initialize();
+  runApp(MyApp());
+}
+
 
 class MyApp extends StatefulWidget {
 

@@ -26,9 +26,14 @@ dependencies:
   shared_preferences:
   flutter_ringtone_player:
   vibration:
-  flutter_local_notifications:
+  local_notifications:
+    git:
+      url: git://github.com/ariefannur/local_notifications.git
+
   flutter_launcher_icons: "^0.7.2"
-  path_provider: 
+  path_provider:
+  flutter_stetho: ^0.3.0
+  charts_flutter: ^0.6.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

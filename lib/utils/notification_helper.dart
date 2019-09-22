@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:meta/meta.dart';
 
-Future<NotificationDetails> _imageAndIcon(
+import 'package:local_notifications/local_notifications.dart';
+
+/*Future<NotificationDetails> _imageAndIcon(
     BuildContext context, String picture, String icon) async {
  
 
@@ -127,12 +126,40 @@ Future showOngoingNotification(
 }) =>
     _showNotification(notifications,
         title: title, body: body, id: id, type: _ongoing);
+*/
 
-Future _showNotification(
-  FlutterLocalNotificationsPlugin notifications, {
-  @required String title,
-  @required String body,
-  @required NotificationDetails type,
-  int id = 0,
-}) =>
-    notifications.show(id, title, body, type);
+class NotificationHelper{
+  AndroidNotificationChannel channel;
+  init() async{
+    channel = const AndroidNotificationChannel(
+      id: 'default_notification',
+      name: 'Default',
+      description: 'Grant this app the ability to show notifications',
+      importance: AndroidNotificationChannelImportance.HIGH
+);
+
+// Create the notification channel (this is a no-op on iOS and android <8.0 devices)
+// Only need to run this one time per App install, any calls after that will be a no-op at the native level
+// but will still need to use the platform channel. For this reason, avoid calling this except for the 
+// first time you need to create the channel.
+  await LocalNotifications.createAndroidNotificationChannel(channel: channel);
+
+  }
+
+Future showNotification(
+   String title,
+   String body,
+   List<NotificationAction> actions
+  ) async{
+
+    await LocalNotifications.createNotification(
+      title: title,
+      content: body,
+      id: 0,
+      androidSettings: new AndroidSettings(
+          channel: channel
+      ),
+      actions: actions
+    );
+  }
+}
